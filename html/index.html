@@ -1,0 +1,93 @@
+<br>
+<div id="loader" style="display:none;width:100%; height:100%; position:fixed; top:0; left:0; background-color:#000; opacity:0.2"><div style="width:80px; margin:0 auto; position:absolute; top:50%; left:50%; margin-top:-25px; margin-left:-25px;z-index:2;"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div></div>
+<div id="login">bot_token&nbsp;<input id="bot_token" type="text">&nbsp;<input type="button" value="load" onClick="getChats()"></div>
+<div id="app"></div>
+
+<style>
+  tr.l:hover {
+    background-color: black;
+    color:white;
+  }
+
+  .lds-ring {display: inline-block;position: relative;width: 80px;height: 80px;}
+  .lds-ring div {box-sizing: border-box;display: block;position: absolute;width: 64px;height: 64px;margin: 8px;border: 8px solid #fff;border-radius: 50%;animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;border-color: #fff transparent transparent transparent;}
+  .lds-ring div:nth-child(1) {animation-delay: -0.45s;}
+  .lds-ring div:nth-child(2) {animation-delay: -0.3s;}
+  .lds-ring div:nth-child(3) {animation-delay: -0.15s;}
+  @keyframes lds-ring {0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);}
+}
+
+</style>
+
+<script src="jq-min.js"></script>
+<script src="utils.js"></script>
+<script>
+var data;
+var bot_token;
+
+function load() {
+  $('#loader').show();
+  return ajax_p({url:'/getChats', data:{bot_token}})
+  .then(res => {
+    $('#loader').hide();
+    data = res.data;
+    return res;
+  })
+  .catch(err => {
+    $('#loader').hide();
+    return Promise.reject(err);
+  })
+}
+
+function getChats() {
+  bot_token = $('#bot_token')[0].value;
+  load()
+  .then( res => {
+    $('#login').hide();
+    showAll();
+  })
+  .catch( err => {
+    console.log('error', err);
+    alert('Cannot get data');
+  })
+}
+
+function showAll() {
+  var t = '<table><tr><th>first_name</th><th>username</th><th>step_id</th></tr>';
+  Object.keys(data).forEach( id => {
+    t = t + '<tr class="l" onClick="show(\''+id+'\')">'
+          +  '<td>' + data[id].from.first_name + '</td>'
+          +  '<td>' + data[id].from.username + '</td>'
+          +  '<td>' + data[id].wf_step_id + '</td>'
+          + '</tr>';
+  })
+  t = t + '</table>';
+  $('#app')[0].innerHTML = t;
+}
+
+function show(id) {
+  var t = '<div onclick="showAll()" style="cursor:pointer;">&lt;back</div><br><table><tr><th>date</th><th>command</th><th>msg.text</th></tr>';
+  data[id].history.forEach( itm => {
+    t = t + '<tr>'
+          +  '<td style="white-space:nowrap" valign="top">' + formatWith('yyyy-MM-dd HH:mm:ss', new Date(itm.ts)) + '</td>'
+          +  '<td valign="top">' + itm.command + '</td>'
+          +  '<td>' + (itm.msg ? itm.msg.text : '') + '</td>'
+          + '</tr>';
+  })
+  t = t + '</table><br>Message<br><textarea id="msg" cols="100"></textarea><br><input type="button" value="send" onClick="send(\''+id+'\')">';
+  $('#app')[0].innerHTML = t;
+}
+
+function send(id) {
+  const text = $('#msg')[0].value;
+  $('#loader').show();
+  ajax_p({url:`/hook?bot=${bot_token}&hook=admin&chat=${id}&text=${text}`, method:"GET"})
+  .then( () => new Promise((resolve, reject) => setTimeout( () => {resolve(load())}, 3000)) )
+  .then( () => show(id))
+  .catch( err => {
+    console.log('error', err);
+    alert('Cannot get data');
+  })
+}
+
+</script>

@@ -1,0 +1,16 @@
+{
+  "name": "test-bot",
+  "private": true,
+  "devDependencies": {},
+  "dependencies": {
+    "axios": "^0.27.2",
+    "clone": "^2.1.2",
+    "compression": "^1.7.4",
+    "cron": "^2.0.0",
+    "express": "^4.18.1",
+    "lodash.get": "^4.4.2",
+    "lodash.set": "^4.3.2",
+    "query-string": "^7.1.1",
+    "serve-static": "^1.15.0"
+  }
+}
