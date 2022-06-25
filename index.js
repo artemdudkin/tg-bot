@@ -20,7 +20,7 @@ timers.startAll( (bot_token, chat_id, key) => {
 
 
 const SERVER_PORT = 8094;
-const OVPN_STATS_URL = 'http://79.137.133.102:8094';
+const OVPN_STATS_URL = 'http://127.0.0.1:1234';
 const SETTINGS = {SERVER_PORT, OVPN_STATS_URL}
 
 utils.log('cwd dir == ' + process.cwd());
