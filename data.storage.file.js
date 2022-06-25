@@ -44,7 +44,7 @@ function load(name) {
     data, 
     loadError: error
   }
-  return o[name];
+//  return o[name];
 }
 
 
@@ -77,7 +77,13 @@ function forceSave(name) {
 }
 
 
+function get(name) {
+  if (!o[name]) load(name);
+  return o[name];
+}
+
+
 module.exports = {
-  load,
+  get,
   forceSave
 }

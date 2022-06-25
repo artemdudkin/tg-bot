@@ -1,21 +1,27 @@
 const utils = require('./utils');
-const clone = require('clone');
 const fstorage = require('./data.storage.file');
-const timers = fstorage.load('timers');
 
 /**
  * data.storage.file will use this method to convert 'timers' object to string (on saving data)
  */
-timers.serialize = function(){
-  let data = clone(timers.data);
+fstorage.get('timers').serialize = function(){
+  let data = fstorage.get('timers').data;
+  let serializable_data = {}
   Object.keys(data).forEach( bot_token => {
     Object.keys(data[bot_token]).forEach( chat_id => {
       data[bot_token][chat_id].forEach( itm => {
-        delete itm.timer_id;
+
+        if (!serializable_data[bot_token]) serializable_data[bot_token] = {};
+        if (!serializable_data[bot_token][chat_id]) serializable_data[bot_token][chat_id] = [];
+
+        serializable_data[bot_token][chat_id].push({
+            date: itm.date,
+            key: itm.key
+        });
       })
     })
   })
-  return JSON.stringify(data, null, 4);
+  return JSON.stringify(serializable_data, null, 4);
 }
 
 
@@ -23,6 +29,8 @@ timers.serialize = function(){
  * Start all saved timers on app start
  */
 function startAll( timerCallbackFunc) {
+  let timers = fstorage.get('timers');
+
   let counter = 0;
   let counter_started = 0;
   Object.keys(timers.data).forEach( bot_token => {
@@ -59,7 +67,6 @@ function startAll( timerCallbackFunc) {
  * (also saves started timers to start it again after server restart)
  */
 function stopAllChatTimersAndStartNew(bot_token, chat_id, keyArray, timerCallbackFunc) {//timerCallbackFunc(bot_token, chat_id, key)
-
       //stop timers if any (at prev step)
       let timerCount = count(bot_token, chat_id);
       if (timerCount > 0) {
@@ -111,6 +118,8 @@ function run(cb, ms, bot_token, chat_id) {
 }
 
 function count(bot_token, chat_id) {
+  let timers = fstorage.get('timers');
+
   chat_id = ''+chat_id;
   if (!timers.data[bot_token]) timers.data[bot_token] = {}
   if (!timers.data[bot_token][chat_id]) timers.data[bot_token][chat_id] = []
@@ -118,6 +127,8 @@ function count(bot_token, chat_id) {
 }
 
 function get(bot_token, chat_id) {
+  let timers = fstorage.get('timers');
+
   chat_id = ''+chat_id;
   if (!timers.data[bot_token]) timers.data[bot_token] = {}
   if (!timers.data[bot_token][chat_id]) timers.data[bot_token][chat_id] = []
@@ -125,6 +136,8 @@ function get(bot_token, chat_id) {
 }
 
 function add(bot_token, chat_id, timer_id, date, key) {
+  let timers = fstorage.get('timers');
+
   chat_id = ''+chat_id;
   if (!timers.data[bot_token]) timers.data[bot_token] = {}
   if (!timers.data[bot_token][chat_id]) timers.data[bot_token][chat_id] = []
@@ -138,6 +151,8 @@ function add(bot_token, chat_id, timer_id, date, key) {
 }
 
 function clearAll(bot_token, chat_id) {
+  let timers = fstorage.get('timers');
+
   chat_id = ''+chat_id;
   if (!timers.data[bot_token]) timers.data[bot_token] = {}
   timers.data[bot_token][chat_id] = [];
@@ -146,6 +161,8 @@ function clearAll(bot_token, chat_id) {
 }
 
 function clear(bot_token, chat_id, uuid) {
+  let timers = fstorage.get('timers');
+
   chat_id = ''+chat_id;
   if (!timers.data[bot_token]) timers.data[bot_token] = {}
   if (!timers.data[bot_token][chat_id]) timers.data[bot_token][chat_id] = [];

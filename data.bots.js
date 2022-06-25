@@ -1,5 +1,5 @@
 const clone = require('clone');
-const bots = require('./data.storage.file').load('bots');
+const bots = require('./data.storage.file').get('bots');
 
 //превратим все события xxx:1;2;3 в три события - xxx:1, xxx:2 и xxx:3 и т.д.
 Object.keys(bots.data).forEach( bot_token => {
@@ -25,7 +25,9 @@ function splitActionsWithSemicolon(o) {
 //нельзя менять ботов на лету, вот так-то
 bots.data = Object.freeze(bots.data);
 
-console.log('bots', JSON.stringify(bots, null, 4));
+Object.keys(bots.data).forEach( (bot_token, index) => {
+  console.log(`  bot[${index}]`, bot_token);
+})
 
 
 

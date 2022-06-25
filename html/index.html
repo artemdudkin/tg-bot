@@ -1,6 +1,6 @@
 <br>
 <div id="loader" style="display:none;width:100%; height:100%; position:fixed; top:0; left:0; background-color:#000; opacity:0.2"><div style="width:80px; margin:0 auto; position:absolute; top:50%; left:50%; margin-top:-25px; margin-left:-25px;z-index:2;"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div></div>
-<div id="login">bot_token&nbsp;<input id="bot_token" type="text">&nbsp;<input type="button" value="load" onClick="getChats()"></div>
+<div id="login">bot_token&nbsp;<input id="bot_token" type="text">&nbsp;<input type="button" value="get" onClick="getChatList()"></div>
 <div id="app"></div>
 
 <style>
@@ -22,27 +22,18 @@
 <script src="jq-min.js"></script>
 <script src="utils.js"></script>
 <script>
-var data;
-var bot_token;
+let chatList;
+let bot_token;
 
-function load() {
+function getChatList() {
+  bot_token = $('#bot_token')[0].value;
+
   $('#loader').show();
-  return ajax_p({url:'/getChats', data:{bot_token}})
+  ajax_p({url:'/chatList', data:{bot_token}})
   .then(res => {
     $('#loader').hide();
-    data = res.data;
-    return res;
-  })
-  .catch(err => {
-    $('#loader').hide();
-    return Promise.reject(err);
-  })
-}
+    chatList = res.data;
 
-function getChats() {
-  bot_token = $('#bot_token')[0].value;
-  load()
-  .then( res => {
     $('#login').hide();
     showAll();
   })
@@ -54,36 +45,43 @@ function getChats() {
 
 function showAll() {
   var t = '<table><tr><th>first_name</th><th>username</th><th>step_id</th></tr>';
-  Object.keys(data).forEach( id => {
+  Object.keys(chatList).forEach( id => {
     t = t + '<tr class="l" onClick="show(\''+id+'\')">'
-          +  '<td>' + data[id].from.first_name + '</td>'
-          +  '<td>' + data[id].from.username + '</td>'
-          +  '<td>' + data[id].wf_step_id + '</td>'
+          +  '<td>' + chatList[id].from.first_name + '</td>'
+          +  '<td>' + chatList[id].from.username + '</td>'
+          +  '<td>' + chatList[id].wf_step_id + '</td>'
           + '</tr>';
   })
   t = t + '</table>';
   $('#app')[0].innerHTML = t;
 }
 
+
 function show(id) {
-  var t = '<div onclick="showAll()" style="cursor:pointer;">&lt;back</div><br><table><tr><th>date</th><th>command</th><th>msg.text</th></tr>';
-  data[id].history.forEach( itm => {
-    t = t + '<tr>'
-          +  '<td style="white-space:nowrap" valign="top">' + formatWith('yyyy-MM-dd HH:mm:ss', new Date(itm.ts)) + '</td>'
-          +  '<td valign="top">' + itm.command + '</td>'
-          +  '<td>' + (itm.msg ? itm.msg.text : '') + '</td>'
-          + '</tr>';
+  $('#loader').show();
+  ajax_p({url:'/chat', data:{bot_token, chat_id:id}})
+  .then(res => {
+    $('#loader').hide();
+
+    var t = '<div onclick="showAll()" style="cursor:pointer;">&lt;back</div><br><table><tr><th>date</th><th>command</th><th>action</th><th>msg.text</th></tr>';
+    res.data.history.forEach( itm => {
+      t = t + '<tr>'
+            +  '<td style="white-space:nowrap" valign="top">' + formatWith('yyyy-MM-dd HH:mm:ss', new Date(itm.ts)) + '</td>'
+            +  '<td valign="top">' + (itm.command || '')+ '</td>'
+            +  '<td valign="top">' + (itm.action || '') + '</td>'
+            +  '<td>' + (itm.msg && itm.msg.text ? itm.msg.text : typeof itm.msg === 'object' ? JSON.stringify(itm.msg) : itm.msg || '') + '</td>'
+            + '</tr>';
+    })
+    t = t + '</table><br>Message<br><textarea id="msg" cols="100"></textarea><br><input type="button" value="send" onClick="send(\''+id+'\')">';
+    $('#app')[0].innerHTML = t;
   })
-  t = t + '</table><br>Message<br><textarea id="msg" cols="100"></textarea><br><input type="button" value="send" onClick="send(\''+id+'\')">';
-  $('#app')[0].innerHTML = t;
 }
 
 function send(id) {
   const text = $('#msg')[0].value;
   $('#loader').show();
   ajax_p({url:`/hook?bot=${bot_token}&hook=admin&chat=${id}&text=${text}`, method:"GET"})
-  .then( () => new Promise((resolve, reject) => setTimeout( () => {resolve(load())}, 3000)) )
-  .then( () => show(id))
+  .then( () => new Promise((resolve, reject) => setTimeout( () => {resolve(show(id))}, 3000)) )
   .catch( err => {
     console.log('error', err);
     alert('Cannot get data');

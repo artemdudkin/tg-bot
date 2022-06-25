@@ -1,7 +1,7 @@
 const _set = require('lodash.set');
 const _get = require('lodash.get');
 const clone = require('clone');
-const chats = require('./data.storage.file').load('chats');
+const chats = require('./data.storage.file').get('chats');
 
 function get(bot_token, chat_id, fieldName) {
   if (!chats.data[bot_token]) chats.data[bot_token] = {}

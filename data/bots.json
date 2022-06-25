@@ -1,1 +1,115 @@
-{}
+{
+  "1234567890:ABCdeFGhijKlMnOpqRSTuvwXyz-i7qrTsA4" : {
+    "on": {
+      "msg:/start": [{"goto":"0"}],
+      "external:first_connect" : [{"goto":"3"}],
+      "external:expired" : [{"goto":"4"}],
+      "msg:Оплатить;оплатить": [{"goto":"5"}],
+      "unknown" : [{"send":{
+        "text":"Я не понимаю этой команды.\n\n(если у вас проблема, то свяжитесь с @xyz123man - он вам поможет)"
+      }}],
+      "error": [{"send":{
+        "text":"Произошла ошибка.\n\nПропробуйте еще раз через некоторое время.\n\n(если ошибка повторяется,свяжитесь с @xyz123man - он вам поможет)"
+      }}]
+    },
+    "wf": [{
+      "id":"0",
+      "on" : {
+        "enter": [{"send": {
+            "text" : "Хотите получить пробный доступ?",
+            "reply_markup": {
+              "inline_keyboard" : [[{
+                "text":"Да",
+                "callback_data" : "answer-1"
+              }, {
+                "text":"Нет",
+                "callback_data" : "answer-2"
+              }]]
+            }
+        }}],
+        "msg:answer-1" : [{"get_trial_vpn_link": 6}, {"goto":"1"}],
+        "msg:answer-2" : [{"goto":"2"}]
+      }
+    }, {
+      "id":"1",
+      "on" : {
+        "enter": [{"send":{
+          "text" : "Вам нужно скачать приложение OpenVPN Connect, и импортировать туда этот файл\n\n ${trial_vpn_link}\n\nПодробную инструкцию с картинками о том, как подключаться, можно посмотреть на http://xyz123man.ru\n\nПробный доступ действует 5 дней."}
+        }],
+        "timer:1200000" : [{"send":{"text":"Если у вас не получается подключиться, то свяжитесь с @xyz123man, он вам поможет"}}]
+      }
+    }, {
+      "id":"2",
+      "on" : {
+        "enter": [{"send":{
+           "text" : "Если вы передумаете, то нажмите /start\n\nИли можно сразу оплатить (напишите \"Оплатить\")"
+         }}]
+      }
+    }, {
+      "id":"3",
+      "on" : {
+        "enter": [{"send":{
+          "text" : "Вам удалось подключиться! Я очень рад.\n\nЕсли выхотите получить постоянный доступ, напишите \"Оплатить\"."
+         }}]
+      }
+    }, {
+      "id":"4",
+      "on" : {
+        "enter": [{"send":{
+          "text" : "Пробный период закончился. \n\nЧтобы продолжать использовать vpn, вам надо купить ключ.\n\nЧтобы сделать это, напишите \"Оплатить\"."
+         }}]
+      }
+    }, {
+      "id":"5",
+      "on" : {
+        "enter": [{"send":{
+          "text" : "Если вы хотите оплатить доступ, перечислите деньги на карточку\n\n5536 9141 5800 5904\n\n(1000 рублей год, 600 полгода, 200 месяц)\n\nВы получите новый ключ в течении суток."
+         }}]
+      }
+    }]
+  },
+  "0987654321:ABCDEgHIjklmNopQRsVbDI7rTD8Yh2PBWM0" : {
+    "on": {
+      "msg:/start": [{"goto":"0"}],
+      "unknown"   : [{"goto":"0"}],
+      "error"     : [{"goto":"0"}]
+    },
+    "wf": [{
+      "id":"0",
+      "on": {
+        "timer:2022-06-14-23-33-00" : [{"send":{"text":"boo"}}],
+        "enter": [
+          {"send": {"text" : "Этот <b>бот</b> пока не работает, идите к боту @xyz123man_bot", "parse_mode": "HTML"}},
+          {"send": {
+            "text" : "test",
+            "reply_markup": {
+              "inline_keyboard" : [[{
+                "text":"1",
+                "callback_data" : "answer-1"
+              }, {
+                "text":"google",
+                "url" : "https://www.google.com/"
+              }, {
+                "text":"delete prev",
+                "callback_data" : "answer-2"
+              }, {
+                "text":"delete all",
+                "callback_data" : "answer-3"
+              }]]
+            }
+          }}
+        ],
+        "timer:60000"  : [{"send":{"text" : "timer ok"}}],
+        "msg:answer-1" : [{"goto":"1"}],
+        "msg:answer-2" : [{"deleteMsg":"prev"}],
+        "msg:answer-3" : [{"deleteMsg":"all"}]
+      }
+    }, {
+      "id":"1",
+      "on": {
+        "enter":       [{"send": {"text" : "step 2"}}],
+        "timer:60000": [{"send":{"text" : "timer SECOND ok"}}]
+      }
+    }]
+  }
+}
