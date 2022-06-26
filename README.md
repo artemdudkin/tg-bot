@@ -34,11 +34,12 @@ Also there is global `on` section wich participates in event handling among with
 
 `error` and `unknown` fires on error and unknown event respectively (and can be omitted for beginners).
 
-`timer:60000` fires after 60 seconds after transition to state (after 'goto' action).
+`timer:60000` fires after 60 seconds (i.e. 60000 milliseconds) after transition to state (after 'goto' action).
 
-`timer:2022-06-14-23-33-00` fires at mentioned date or immediately if mentioned date is in the past.
+`timer:2022-06-14-23-33-00` fires at mentioned date or immediately if mentioned date is in the past. 
+Timers belongs to state where thay was defined and stops after transition to another state, if action of timer was not started by that moment.
 
-`external:ZZZ` fires after webhook of name 'ZZZ' was recieved. Look at 'hooks' folder for more details.
+`external:ZZZ` fires after webhook named 'ZZZ' was recieved. Look at `/hook` service at index.js and folder `hooks` for more details.
 
 ## Actions
 `goto` will transfere bot to another state.
