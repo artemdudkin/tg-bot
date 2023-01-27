@@ -2,9 +2,12 @@
 Proof-of-concept telegram bots platform.
 
 ## Bot configuration
+
 Look at `data/bots.json` - it is object of <bot_token>:<bot_description> pairs. You can create telegram bot with [botFather](https://core.telegram.org/bots#6-botfather) and obtain <bot_token> there (it is 46-letter string).
 
-The main part of <bot_description> is `wf` section. Bot is [final-state machine](https://en.wikipedia.org/wiki/Finite-state_machine), and `wf` contains array of bot states.
+It uses webhooks to [get updates](https://core.telegram.org/bots/api#getting-updates) from Telegram. To set up right server (where this software started) your should start from browser `https://api.telegram.org/bot<bot-token>/setWebhook?url=<server-url>/message?bot=<bot-token>`, where `<bot-token>` and `<server-url>` should be replaced by real values. You can check results by `https://api.telegram.org/bot<bot-token>/getWebhookInfo`
+
+The main part of <bot_description> is `wf` section. Bot is [finite-state machine](https://en.wikipedia.org/wiki/Finite-state_machine), and `wf` contains array of bot states.
 
 Every bot state have two fields: `id` and `on`, which means array of <bot_event>:<bot_reaction> pairs. Event can be message from user for instance, and reaction can be array of actions like `goto state 1` or send message to user.
   
